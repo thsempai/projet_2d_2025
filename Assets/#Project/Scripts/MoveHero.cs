@@ -3,17 +3,25 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
 public class MoveHero : MonoBehaviour
 {
+
     [SerializeField] private InputActionAsset actions;
     [SerializeField] private float speed;
-    InputAction xAxis;
+    private InputAction xAxis;
+
+    private SpriteRenderer renderer;
+    private Animator animator;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         xAxis = actions.FindActionMap("Luigi").FindAction("XAxis");
+        renderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     private void OnEnable()
@@ -34,6 +42,9 @@ public class MoveHero : MonoBehaviour
 
     private void MoveX()
     {
+
+        renderer.flipX = xAxis.ReadValue<float>() < 0;
+        animator.SetFloat("speed", Mathf.Abs(xAxis.ReadValue<float>()));
         transform.Translate(xAxis.ReadValue<float>() * speed * Time.deltaTime, 0f, 0f);
     }
 }
