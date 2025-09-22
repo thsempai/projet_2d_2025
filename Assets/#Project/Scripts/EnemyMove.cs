@@ -18,14 +18,25 @@ public class EnemyMove : MonoBehaviour
     void Update()
     {
         transform.Translate(speed * (goRight ? 1f : -1f) * Time.deltaTime, 0f, 0f);
-    }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.CompareTag("Obstacle")){
+        Vector3 origin = transform.position + 0.4f * Vector3.up + Vector3.right * 0.4f * (goRight ? 1f : -1f);
+        Vector3 direction = Vector3.right * (goRight ? 1f : -1f);
+
+        Debug.DrawRay(origin, direction * 0.02f, Color.cyan);
+        RaycastHit2D sideHit = Physics2D.Raycast(origin, direction, 0.02f);
+
+        origin = transform.position + Vector3.right * 0.4f * (goRight ? 1f : -1f);
+        direction = Vector3.down;
+
+        Debug.DrawRay(origin, direction * 1.01f, Color.yellow);
+        RaycastHit2D bellowHit = Physics2D.Raycast(origin, direction, 1.01f);
+
+        if (sideHit.collider != null || bellowHit.collider == null)
+        {
             InverseSpeed();
         }
     }
+
 
     private void InverseSpeed()
     {
