@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 
 [RequireComponent(typeof(SpriteRenderer))]
@@ -19,6 +20,7 @@ public class MoveHero : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool isJumping = false;
+    private bool isCrouching = false;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -34,12 +36,16 @@ public class MoveHero : MonoBehaviour
     {
         actions.FindActionMap("Luigi").Enable();
         actions.FindActionMap("Luigi").FindAction("Jump").performed += OnJump;
+        actions.FindActionMap("Luigi").FindAction("Crouch").performed += OnCrouch;
+        actions.FindActionMap("Luigi").FindAction("Crouch").canceled += OnRise;
     }
 
     private void OnDisable()
     {
         actions.FindActionMap("Luigi").Disable();
         actions.FindActionMap("Luigi").FindAction("Jump").performed -= OnJump;
+        actions.FindActionMap("Luigi").FindAction("Crouch").performed -= OnCrouch;
+        actions.FindActionMap("Luigi").FindAction("Crouch").canceled -= OnRise;
     }
 
     // Update is called once per frame
@@ -62,13 +68,26 @@ public class MoveHero : MonoBehaviour
     {
 
         renderer.flipX = xAxis.ReadValue<float>() < 0;
+        
+        if(isCrouching) return;
+
         animator.SetFloat("speed", Mathf.Abs(xAxis.ReadValue<float>()));
         transform.Translate(xAxis.ReadValue<float>() * speed * Time.deltaTime, 0f, 0f);
     }
 
-    private void OnJump(InputAction .CallbackContext context){
+    private void OnJump(InputAction.CallbackContext context){
         rb.AddForce(Vector3.up * jumpForce);
         animator.SetBool("on jump", true);
         isJumping = true;
+    }
+
+    private void OnCrouch(InputAction.CallbackContext context){
+        isCrouching = true;
+        animator.SetBool("on crouch", true);
+    }
+
+    private void OnRise(InputAction.CallbackContext context){
+        isCrouching = false;
+        animator.SetBool("on crouch", false);
     }
 }
